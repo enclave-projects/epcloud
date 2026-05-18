@@ -2,9 +2,43 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>vite-app</title>
+
+    <!--
+      Content Security Policy (CSP) — defense-in-depth.
+      In production this should also be sent as an HTTP header by the host.
+
+      Note on frame-ancestors: we deliberately do NOT block all framing here
+      because /e/:token (the embed page) is meant to render inside iframes on
+      third-party sites. Embedding is gated server-side by each share link's
+      `allowed_origins` setting. For the dashboard / auth surface, set
+      X-Frame-Options: DENY at the hosting layer to prevent clickjacking.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self';
+        style-src 'self' 'unsafe-inline';
+        font-src 'self' data:;
+        img-src 'self' data: blob: https:;
+        media-src 'self' blob: https:;
+        connect-src 'self' https://supabase.enclaveprojects.dev wss://supabase.enclaveprojects.dev;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+        upgrade-insecure-requests;
+      "
+    />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <title>EP Cloud — Secure media hosting</title>
+    <meta
+      name="description"
+      content="EP Cloud is a fast, secure platform to host images and videos with encrypted, signed sharing links."
+    />
   </head>
   <body>
     <div id="root"></div>

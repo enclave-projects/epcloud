@@ -1,0 +1,7 @@
+# Supabase project config (used by `supabase` CLI)
+# https://supabase.com/docs/guides/cli/config
+
+project_id = "epcloud"
+
+[functions.send-email]
+verify_jwt = false
