@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.vscode
+.kiro
+.agents
+*.log
+.env
+.env.*
+!.env.example
