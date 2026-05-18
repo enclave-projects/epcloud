@@ -3,6 +3,7 @@ import { formatDistanceToNowStrict } from "date-fns"
 
 import { Thumbnail } from "@/components/dashboard/thumbnail"
 import { MediaRowActions } from "@/components/dashboard/media-row-actions"
+import { MediaPreviewDialog } from "@/components/dashboard/media-preview-dialog"
 import { BulkActions } from "@/components/dashboard/bulk-actions"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatBytes } from "@/lib/storage"
@@ -28,6 +29,7 @@ export function MediaTable({
   selectable = false,
 }: Props) {
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
+  const [previewMedia, setPreviewMedia] = React.useState<MediaRow | null>(null)
   // Filter selected to only include ids still in current rows
   const validSelected = React.useMemo(
     () => new Set(Array.from(selected).filter((id) => rows.some((r) => r.id === id))),
@@ -79,8 +81,11 @@ export function MediaTable({
           {rows.map((row) => (
             <li
               key={row.id}
+              onDoubleClick={() => {
+                if (row.status === "ready") setPreviewMedia(row)
+              }}
               className={cn(
-                "grid grid-cols-12 items-center gap-3 px-4 py-2.5 sm:gap-4",
+                "grid cursor-pointer grid-cols-12 items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/50 sm:gap-4",
                 validSelected.has(row.id) && "bg-primary/5"
               )}
             >
@@ -98,10 +103,24 @@ export function MediaTable({
               ) : null}
 
               {/* Name + thumbnail */}
-              <div className={cn(
-                "flex min-w-0 items-center gap-3",
-                selectable ? "col-span-11 sm:col-span-4" : "col-span-12 sm:col-span-5"
-              )}>
+              <div
+                className={cn(
+                  "flex min-w-0 cursor-pointer items-center gap-3",
+                  selectable ? "col-span-11 sm:col-span-4" : "col-span-12 sm:col-span-5"
+                )}
+                onClick={() => {
+                  if (row.status === "ready") setPreviewMedia(row)
+                }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if ((e.key === "Enter" || e.key === " ") && row.status === "ready") {
+                    e.preventDefault()
+                    setPreviewMedia(row)
+                  }
+                }}
+                aria-label={`Preview ${row.original_filename}`}
+              >
                 <Thumbnail media={row} size="sm" />
                 <div className="min-w-0">
                   <p
@@ -159,6 +178,14 @@ export function MediaTable({
           onChanged={onChanged}
         />
       ) : null}
+
+      {/* Media preview lightbox */}
+      <MediaPreviewDialog
+        media={previewMedia}
+        rows={rows.filter((r) => r.status === "ready")}
+        onClose={() => setPreviewMedia(null)}
+        onNavigate={(m) => setPreviewMedia(m)}
+      />
     </div>
   )
 }
